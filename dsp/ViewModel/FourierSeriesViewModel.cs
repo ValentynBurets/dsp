@@ -21,6 +21,39 @@ namespace dsp.ViewModel
     public class FourierSeriesViewModel : INotifyPropertyChanged
     {
         private FourierSeries fourierSeries;
+
+        private List<double> _xRange;
+
+        public List<double> XRange
+        {
+            get
+            {
+                return _xRange;
+            }
+            set
+            {
+                _xRange = value;
+                OnPropertyChanged(nameof(XRange));
+            }
+        }
+
+
+
+        private List<double> _yValues;
+
+        public List<double> YValues
+        {
+            get
+            {
+                return _yValues;
+            }
+            set
+            {
+                _yValues = value;
+                OnPropertyChanged(nameof(YValues));
+            }
+        }
+
         private ObservableCollection<DataPoint> _points;
 
         public ObservableCollection<DataPoint> Points
@@ -51,7 +84,7 @@ namespace dsp.ViewModel
             }
         }
 
-        private double _Xmin = -Math.PI;
+        private double _Xmin = -Math.PI * 2;
         public double XMin
         {
             get
@@ -66,7 +99,7 @@ namespace dsp.ViewModel
             }
         }
 
-        private double _Xmax = Math.PI;
+        private double _Xmax = Math.PI * 2;
         public double XMax
         {
             get
@@ -79,6 +112,8 @@ namespace dsp.ViewModel
                 OnPropertyChanged(nameof(XMax));
             }
         }
+
+
 
         private double _step;
         public double Step
@@ -124,7 +159,9 @@ namespace dsp.ViewModel
                       if (Points.Count > 1)
                           Points.Clear();
 
-                      Points = CalculatePointsFunc();
+                      fourierSeries.Function = new PeriodicFunction(x => x).Invoke;
+
+                      //Points = CalculatePointsFunc();
 
                       UpdateImagePlot();
 
@@ -172,7 +209,7 @@ namespace dsp.ViewModel
 
         private double PointAway()
         {
-            double res = Math.Abs(Points[0].X);
+            double res = Math.Abs(XRange[0]);
 
             foreach (var item in Points)
             {
@@ -214,37 +251,64 @@ namespace dsp.ViewModel
             return pm;
         }
 
-        public Func<double, double> Function { get; set; }
-
         private void UpdateImagePlot()
         {
-            Function = new PeriodicFunction(x => Math.Sign(x)).Invoke;
+            //set range of system
 
+            XRange = new List<double>();
+            XRange.AddRange(PeriodicFunction.GetRange(XMin, XMax, Tick));
 
+            //----------------------------------------------
+
+            
             var pm = SetPlot();
+
+            #region intialize function plot
+            
             var function = new LineSeries();
-
-            foreach (DataPoint points in Points.ToList())
+            
+            foreach (var item in XRange.ToList())
             {
+                double tempY = fourierSeries.Function(item);
 
-                var pointAnnotation = new PointAnnotation()
-                {
-                    X = Convert.ToDouble(points.X),
-                    Y = Convert.ToDouble(points.Y),
-                };
-                function.Points.Add(new OxyPlot.DataPoint(Convert.ToDouble(points.X), Convert.ToDouble(points.Y)));
-                pm.Annotations.Add(pointAnnotation);
+                function.Points.Add(new OxyPlot.DataPoint(Convert.ToDouble(item), Convert.ToDouble(tempY)));
+            }
+
+            pm.Series.Add(function);
+            #endregion
+
+            #region intialize approximation plot
+            var approximation = new LineSeries();
+
+
+
+            foreach (var item in XRange.ToList())
+            {
+                double tempY = fourierSeries.Aproximate(item);
+
+                approximation.Points.Add(new OxyPlot.DataPoint(Convert.ToDouble(item), Convert.ToDouble(tempY)));
+                
             }
             pm.Series.Add(function);
 
+            #endregion
             FourierSeriesImage = pm;
         }
 
 
         #endregion
+
+
+        private const double Tick = 0.02d;
         public ObservableCollection<DataPoint> CalculatePointsFunc()
         {
+            Function = new PeriodicFunction(x => Math.Sign(x)).Invoke;
+
+
             ObservableCollection<DataPoint> _points = new ObservableCollection<DataPoint>();
+
+
+
 
             double start_x = -Math.PI;
             double finish = 0;

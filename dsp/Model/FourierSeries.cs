@@ -1,4 +1,5 @@
-﻿using Hangfire.Annotations;
+﻿using dsp.MathLogic;
+using Hangfire.Annotations;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -17,7 +18,14 @@ namespace dsp.Model
         private int _fi0Analytical;
         private int _n;
         private double _anAnalytical;
+        public Func<double, double> Function { get; set; }
 
+        private Func<Func<double, double>, double, double, int, double> IntegrationMethod { get; set; }
+
+        public FourierSeries()
+        {
+            IntegrationMethod = MathIntegration.MethodTrapezoid;
+        }
         public double Accuracy
         {
             get { return _accuracy; }
@@ -134,12 +142,7 @@ namespace dsp.Model
             }
             return suma / n;
         }
-
-        private double Function(int i)
-        {
-            return i;
-        }
-
+        
         //Код для середньої квадратичної похибки:
         public double AverageSquareError(int n)
         {
@@ -154,6 +157,24 @@ namespace dsp.Model
 
         //код що обчислюватиме наближення рядом
         //Фур’є з точністю до порядку N(брати цей параметр, як аргумент функції).
+
+        private CalculateA0() => 2.0/ (2 * Math.PI) * IntegrationMethod
+
+        public double Aproximate(double x)
+        {
+            if(Function(x) == Function(-x))
+            {
+                return CalculateA0() / 2.0
+            }
+            if(Function(-x) == -Function(x))
+            {
+
+            }
+            else
+            {
+
+            }
+        }
 
 
         public event PropertyChangedEventHandler PropertyChanged;

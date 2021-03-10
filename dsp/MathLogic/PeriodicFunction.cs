@@ -29,5 +29,13 @@ namespace dsp.MathLogic
                 return Function(x);
             }
         }
+
+        public static IEnumerable<double> GetRange(double min, double max, double step)
+        {
+            double diff = max - min;
+            int steps = (int)(diff / step) - 1;
+            return Enumerable.Range(0, (int)((max - min) / step))
+                .Select(i => min + diff * i / steps);
+        }
     }
 }

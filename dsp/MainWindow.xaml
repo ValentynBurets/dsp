@@ -5,14 +5,14 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:oxy="http://oxyplot.org/wpf" xmlns:local1="clr-namespace:dsp" xmlns:local="clr-namespace:dsp.ViewModel"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
+        Title="Fourier Series" Height="450" Width="800">
 
-    <Grid Margin="0,0,106,6">
+    <Grid>
 
 
         <Grid.ColumnDefinitions>
             <ColumnDefinition></ColumnDefinition>
-            <ColumnDefinition></ColumnDefinition>
+            <ColumnDefinition Width="200"></ColumnDefinition>
         </Grid.ColumnDefinitions>
 
         <Grid Grid.Column="0">
@@ -20,77 +20,33 @@
         </Grid>
 
         <Grid Grid.Column="1">
-            <StackPanel >
+            
 
                 <StackPanel DataContext ="{Binding SelectedParameters}">
-                    <Label Content="FourierSerias  F(x) = x, where x more than -Pi and  x less than 0" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                   
 
-                    <Label Content="Accuracy" Width="130" HorizontalAlignment="Left" VerticalAlignment="Center"/>
-                    <TextBox x:Name="AccuracyInput" Height="30" TextWrapping="Wrap" Width="120" HorizontalContentAlignment="Right" VerticalAlignment="Center" Margin="25,0,0,0" 
+                    <Label Content="Accuracy" Width="130" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    <TextBox x:Name="AccuracyInput" Height="30" TextWrapping="Wrap" Width="120" HorizontalContentAlignment="Center" VerticalAlignment="Center" 
                                  Text="{Binding Accuracy}" />
 
-                    <Label Content="Fi0Analytical" Width="130" HorizontalAlignment="Left" VerticalAlignment="Center"/>
-                    <TextBox x:Name="Fi0AnalyticalInput" Height="30" TextWrapping="Wrap" Width="120" HorizontalContentAlignment="Right" VerticalAlignment="Center" Margin="25,0,0,0"
+                    <Label Content="Fi0Analytical" Width="130" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    <TextBox x:Name="Fi0AnalyticalInput" Height="30" TextWrapping="Wrap" Width="120" HorizontalContentAlignment="Center" VerticalAlignment="Center" 
                                  Text="{Binding Fi0Analytical}" />
 
-                    <Label Content="N" Width="130" HorizontalAlignment="Left" VerticalAlignment="Center"/>
-                    <TextBox x:Name="NInput" Height="30" TextWrapping="Wrap" Width="120" HorizontalContentAlignment="Right" VerticalAlignment="Center" Margin="25,0,0,0"
+                    <Label Content="N" Width="130" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    <TextBox x:Name="NInput" Height="30" TextWrapping="Wrap" Width="120" HorizontalContentAlignment="Right" VerticalAlignment="Center"
                                  Text="{Binding N}" />
 
-
+                    
                 </StackPanel>
+            
 
-                <Button Width="150" Height="60"  Command="{Binding CreateCommand }" CommandParameter="{Binding SelectedParameters}">Create</Button>
+                    <Button Width="150" Height="60"  Command="{Binding CreateCommand }" CommandParameter="{Binding SelectedParameters}">Create graph</Button>
 
-                <StackPanel DataContext ="{Binding SelectedParameters}">
-
-                    <Label Content="Angle" Width="140" VerticalAlignment="Center" HorizontalAlignment="Center" HorizontalContentAlignment="Center"/>
-
-                    <ComboBox IsEditable="True" Text="{Binding Angle, UpdateSourceTrigger=PropertyChanged}"  x:Name="AngleComboBox" SelectedIndex="0" Height="36" Width="120" HorizontalContentAlignment="Center">
-                        <ComboBoxItem Content="30"/>
-                        <ComboBoxItem Content="60"/>
-                        <ComboBoxItem Content="90"/>
-                        <ComboBoxItem Content="120"/>
-                        <ComboBoxItem Content="180"/>
-                        <ComboBoxItem Content="240"/>
-                        <ComboBoxItem Content="300"/>
-                        <ComboBoxItem Content="360"/>
-                    </ComboBox>
-
-                    <Label Content="uniform increase" Width="140" VerticalAlignment="Center" HorizontalAlignment="Center" HorizontalContentAlignment="Center"/>
-
-                    <ComboBox IsEditable="True" Text="{Binding Scale, UpdateSourceTrigger=PropertyChanged}"  x:Name="ScaleComboBox" SelectedIndex="0" Height="36" Width="120" HorizontalContentAlignment="Center"   >
-                        <ComboBoxItem Content="proportional x1"/>
-                        <ComboBoxItem Content="proportional x2"/>
-                        <ComboBoxItem Content="proportional x4"/>
-                        <ComboBoxItem Content="proportional x8"/>
-                        <ComboBoxItem Content="non proportional 1 : 2"/>
-                        <ComboBoxItem Content="non proportional 2 : 1"/>
-                        <ComboBoxItem Content="non proportional 3 : 1"/>
-                        <ComboBoxItem Content="non proportional 1 : 3"/>
-                    </ComboBox>
-
-                    <Label Content="Point" Width="140" VerticalAlignment="Center" HorizontalAlignment="Center" HorizontalContentAlignment="Center"/>
-
-                    <ComboBox Text="{Binding SelectedPoint, UpdateSourceTrigger=PropertyChanged}" x:Name="PointComboBox" SelectedIndex="0" Height="36" Width="120" HorizontalContentAlignment="Center" >
-                        <ComboBoxItem Content="Center"/>
-                        <ComboBoxItem Content="A"/>
-                        <ComboBoxItem Content="B"/>
-                        <ComboBoxItem Content="C"/>
-                        <ComboBoxItem Content="D"/>
-                        <ComboBoxItem Content="E"/>
-                        <ComboBoxItem Content="F"/>
-                    </ComboBox>
-
-                    <!--<Button x:Name="DoMoveButton" Width="150" Height="60" Content="DoMove" />-->
-                </StackPanel>
-
-                <Button Width="150" Height="60"  Command="{Binding DoMoveCommand}" CommandParameter="{Binding SelectedParameters}">DoMove</Button>
-
-
-            </StackPanel>
         </Grid>
 
     </Grid>
 
+
+    
 </Window>
