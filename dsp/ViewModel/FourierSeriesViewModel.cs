@@ -3,7 +3,6 @@ using dsp.MathLogic;
 using dsp.Model;
 using Hangfire.Annotations;
 using OxyPlot;
-using OxyPlot.Annotations;
 using OxyPlot.Axes;
 using OxyPlot.Series;
 using System;
@@ -12,8 +11,6 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 
 namespace dsp.ViewModel
@@ -37,8 +34,6 @@ namespace dsp.ViewModel
             }
         }
 
-
-
         private List<double> _yValues;
 
         public List<double> YValues
@@ -54,35 +49,21 @@ namespace dsp.ViewModel
             }
         }
 
-        private ObservableCollection<DataPoint> _points;
 
-        public ObservableCollection<DataPoint> Points
+        private List<double> _yAproximation;
+        public List<double> YAproximation
         {
             get
             {
-                return _points;
+                return _yAproximation;
             }
             set
             {
-                _points = value;
-                OnPropertyChanged(nameof(Points));
+                _yAproximation = value;
+                OnPropertyChanged(nameof(YAproximation));
             }
         }
 
-        private ObservableCollection<DataPoint> _approximationPoints;
-
-        public ObservableCollection<DataPoint> ApproxiamationPoints
-        {
-            get
-            {
-                return _approximationPoints;
-            }
-            set
-            {
-                _points = value;
-                OnPropertyChanged(nameof(ApproxiamationPoints));
-            }
-        }
 
         private double _Xmin = -Math.PI * 2;
         public double XMin
@@ -93,7 +74,6 @@ namespace dsp.ViewModel
             }
             set
             {
-
                 _Xmin = value;
                 OnPropertyChanged(nameof(XMin));
             }
@@ -148,21 +128,7 @@ namespace dsp.ViewModel
                           MessageBox.Show("Enter Data!");
                           return;
                       }
-                      if (fourierSeries.Accuracy == 0 && fourierSeries.AnAnalytical == 0 && fourierSeries.Fi0Analytical == 0 && fourierSeries.N == 0)
-                      {
-                          MessageBox.Show("Something went wrong!");
-                          return;
-                      }
-
-                      if (Points == null)
-                          Points = new ObservableCollection<DataPoint>();
-                      if (Points.Count > 1)
-                          Points.Clear();
-
-                      fourierSeries.Function = new PeriodicFunction(x => x).Invoke;
-
-                      //Points = CalculatePointsFunc();
-
+                      
                       UpdateImagePlot();
 
                   }));
@@ -184,13 +150,14 @@ namespace dsp.ViewModel
 
         public FourierSeriesViewModel()
         {
-            Points = CalculatePointsFunc();
+
             fourierSeries = new FourierSeries
             {
-                Accuracy = 0,
-                Fi0Analytical = 0,
+                Function = new PeriodicFunction((x) => (x)).Invoke,
+                Prescision = 1003,
                 N = 10
-            };
+        };
+            
         }
         #region plot region
 
@@ -211,12 +178,10 @@ namespace dsp.ViewModel
         {
             double res = Math.Abs(XRange[0]);
 
-            foreach (var item in Points)
+            foreach (var item in XRange)
             {
-                if (Math.Abs(item.X) > res)
-                    res = Math.Abs(item.X);
-                if (Math.Abs(item.Y) > res)
-                    res = Math.Abs(item.Y);
+                if (Math.Abs(item) > res)
+                    res = Math.Abs(item);
             }
 
             return res;
@@ -245,7 +210,7 @@ namespace dsp.ViewModel
                 PositionAtZeroCrossing = true,
                 ExtraGridlines = new[] { 0.0 }
             });
-            pm.Title = "Hexagon";
+            //pm.Title = "Hexagon";
             pm.PlotType = PlotType.Cartesian;
 
             return pm;
@@ -266,10 +231,12 @@ namespace dsp.ViewModel
             #region intialize function plot
             
             var function = new LineSeries();
+            YValues = new List<double>();
             
             foreach (var item in XRange.ToList())
             {
                 double tempY = fourierSeries.Function(item);
+                YValues.Add(tempY);
 
                 function.Points.Add(new OxyPlot.DataPoint(Convert.ToDouble(item), Convert.ToDouble(tempY)));
             }
@@ -280,16 +247,16 @@ namespace dsp.ViewModel
             #region intialize approximation plot
             var approximation = new LineSeries();
 
-
+            YAproximation = new List<double>();
 
             foreach (var item in XRange.ToList())
             {
                 double tempY = fourierSeries.Aproximate(item);
-
-                approximation.Points.Add(new OxyPlot.DataPoint(Convert.ToDouble(item), Convert.ToDouble(tempY)));
+                YAproximation.Add(tempY);
                 
+                approximation.Points.Add(new OxyPlot.DataPoint(Convert.ToDouble(item), Convert.ToDouble(tempY)));
             }
-            pm.Series.Add(function);
+            pm.Series.Add(approximation);
 
             #endregion
             FourierSeriesImage = pm;
@@ -300,34 +267,30 @@ namespace dsp.ViewModel
 
 
         private const double Tick = 0.02d;
-        public ObservableCollection<DataPoint> CalculatePointsFunc()
-        {
-            Function = new PeriodicFunction(x => Math.Sign(x)).Invoke;
+        //public ObservableCollection<DataPoint> CalculatePointsFunc()
+        //{
+        //    fourierSeries.Function = new PeriodicFunction(x => Math.Sign(x)).Invoke;
 
+        //    ObservableCollection<DataPoint> _points = new ObservableCollection<DataPoint>();
 
-            ObservableCollection<DataPoint> _points = new ObservableCollection<DataPoint>();
+        //    double start_x = -Math.PI;
+        //    double finish = 0;
 
+        //    double temp = 0.1;
 
+        //    if (fourierSeries != null && fourierSeries.N != 0)
+        //        temp = (finish - start_x) / fourierSeries.N;
 
+        //    while (start_x <= finish)
+        //    {
+        //        double? tempY = Func(start_x);
+        //        if (tempY != null)
+        //            _points.Add(new DataPoint(start_x, (double)tempY));
+        //        start_x += temp;
+        //    }
 
-            double start_x = -Math.PI;
-            double finish = 0;
-
-            double temp = 0.1;
-
-            if (fourierSeries != null && fourierSeries.N != 0)
-                temp = (finish - start_x) / fourierSeries.N;
-
-            while (start_x <= finish)
-            {
-                double? tempY = Func(start_x);
-                if (tempY != null)
-                    _points.Add(new DataPoint(start_x, (double)tempY));
-                start_x += temp;
-            }
-
-            return _points;
-        }
+        //    return _points;
+        //}
 
         public static double? Func(double x)
         {
