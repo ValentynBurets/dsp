@@ -1,4 +1,5 @@
-﻿using dsp.Commands;
+﻿using dsp.additional;
+using dsp.Commands;
 using dsp.MathLogic;
 using dsp.Model;
 using Hangfire.Annotations;
@@ -9,8 +10,10 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 using System.Windows;
 
 namespace dsp.ViewModel
@@ -64,43 +67,13 @@ namespace dsp.ViewModel
             }
         }
 
-
-        private double _Xmin = -Math.PI * 2;
-        public double XMin
-        {
-            get
-            {
-                return _Xmin;
-            }
-            set
-            {
-                _Xmin = value;
-                OnPropertyChanged(nameof(XMin));
-            }
-        }
-
-        private double _Xmax = Math.PI * 2;
-        public double XMax
-        {
-            get
-            {
-                return _Xmax;
-            }
-            set
-            {
-                _Xmax = value;
-                OnPropertyChanged(nameof(XMax));
-            }
-        }
-
-
-
+        /*
         private double _step;
         public double Step
         {
             get
             {
-                return Math.Abs(XMax - XMin) / 10.0; ;
+                return Math.Abs(fourierSeries.XMax - fourierSeries.XMin) / 10.0; ;
             }
             set
             {
@@ -108,6 +81,7 @@ namespace dsp.ViewModel
                 OnPropertyChanged(nameof(Step));
             }
         }
+        */
 
 
         private RelayCommand createCommand;
@@ -130,7 +104,8 @@ namespace dsp.ViewModel
                       }
                       
                       UpdateImagePlot();
-
+                      CalculateError();
+                      fourierSeries.file.WriteInFile();
                   }));
             }
         }
@@ -151,12 +126,13 @@ namespace dsp.ViewModel
         public FourierSeriesViewModel()
         {
 
+
             fourierSeries = new FourierSeries
             {
                 Function = new PeriodicFunction((x) => (x)).Invoke,
                 Prescision = 1003,
                 N = 10
-        };
+            };
             
         }
         #region plot region
@@ -210,18 +186,19 @@ namespace dsp.ViewModel
                 PositionAtZeroCrossing = true,
                 ExtraGridlines = new[] { 0.0 }
             });
-            //pm.Title = "Hexagon";
+            //pm = "Hexagon";
             pm.PlotType = PlotType.Cartesian;
 
             return pm;
         }
-
+        
+        private const double Tick = 0.02d;
         private void UpdateImagePlot()
         {
             //set range of system
 
             XRange = new List<double>();
-            XRange.AddRange(PeriodicFunction.GetRange(XMin, XMax, Tick));
+            XRange.AddRange(PeriodicFunction.GetRange(fourierSeries.XMin, fourierSeries.XMax, Tick));
 
             //----------------------------------------------
 
@@ -232,6 +209,7 @@ namespace dsp.ViewModel
             
             var function = new LineSeries();
             YValues = new List<double>();
+            function.Title = "f(x) = x";
             
             foreach (var item in XRange.ToList())
             {
@@ -246,12 +224,15 @@ namespace dsp.ViewModel
 
             #region intialize approximation plot
             var approximation = new LineSeries();
-
+            approximation.Title = "Fourier Series";
             YAproximation = new List<double>();
+
+            fourierSeries.file.Write($"F(x) = x, -PI < x < PI \n Порядок {fourierSeries.N} \n Approximation\n");
+            fourierSeries.CalculateElements();
 
             foreach (var item in XRange.ToList())
             {
-                double tempY = fourierSeries.Aproximate(item);
+                double tempY = fourierSeries.Approximate(item);
                 YAproximation.Add(tempY);
                 
                 approximation.Points.Add(new OxyPlot.DataPoint(Convert.ToDouble(item), Convert.ToDouble(tempY)));
@@ -265,32 +246,17 @@ namespace dsp.ViewModel
 
         #endregion
 
+        #region error
+        private void CalculateError()
+        {
+            
+            var abs = YValues.Zip(YAproximation, (Yv, Ya) => Math.Abs(Yv - Ya));
+            var relativeError = abs.Zip(YValues, (a, Yv) => a / Yv).Average() * 100;
 
-        private const double Tick = 0.02d;
-        //public ObservableCollection<DataPoint> CalculatePointsFunc()
-        //{
-        //    fourierSeries.Function = new PeriodicFunction(x => Math.Sign(x)).Invoke;
+            fourierSeries.file.Write($"відносна похибка вимірювань {Math.Round(relativeError, 5)} %");
+        }
 
-        //    ObservableCollection<DataPoint> _points = new ObservableCollection<DataPoint>();
-
-        //    double start_x = -Math.PI;
-        //    double finish = 0;
-
-        //    double temp = 0.1;
-
-        //    if (fourierSeries != null && fourierSeries.N != 0)
-        //        temp = (finish - start_x) / fourierSeries.N;
-
-        //    while (start_x <= finish)
-        //    {
-        //        double? tempY = Func(start_x);
-        //        if (tempY != null)
-        //            _points.Add(new DataPoint(start_x, (double)tempY));
-        //        start_x += temp;
-        //    }
-
-        //    return _points;
-        //}
+        #endregion
 
         public static double? Func(double x)
         {

@@ -72,6 +72,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="additional\WriteInFile.cs" />
     <Compile Include="Commands\RelayCommand.cs" />
     <Compile Include="MathLogic\MathIntegration.cs" />
     <Compile Include="MathLogic\PeriodicFunction.cs" />

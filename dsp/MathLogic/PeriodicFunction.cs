@@ -1,4 +1,5 @@
-﻿using System;
+﻿using dsp.Model;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -16,18 +17,9 @@ namespace dsp.MathLogic
 
         public double Invoke(double x)
         {
-            if (x <= -Math.PI)
-            {
-                return Function(x + 2 * Math.PI);
-            }
-            if (x >= Math.PI)
-            {
-                return Function(x - 2 * Math.PI);
-            }
-            else
-            {
-                return Function(x);
-            }
+            while (x <= -Math.PI) x += 2 * Math.PI;
+            while (x > Math.PI) x -= 2 * Math.PI;
+            return Function(x);
         }
 
         public static IEnumerable<double> GetRange(double min, double max, double step)

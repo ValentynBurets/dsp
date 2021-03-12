@@ -23,25 +23,21 @@
             
 
                 <StackPanel DataContext ="{Binding SelectedParameters}">
-                   
 
-                    <Label Content="Accuracy" Width="130" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                    <TextBox x:Name="AccuracyInput" Height="30" TextWrapping="Wrap" Width="120" HorizontalContentAlignment="Center" VerticalAlignment="Center" 
-                                 Text="{Binding Accuracy}" />
 
-                    <Label Content="Fi0Analytical" Width="130" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                    <TextBox x:Name="Fi0AnalyticalInput" Height="30" TextWrapping="Wrap" Width="120" HorizontalContentAlignment="Center" VerticalAlignment="Center" 
-                                 Text="{Binding Fi0Analytical}" />
+                <Label Content="Period set in 2PI" Width="130" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                <TextBox x:Name="PeriodInput" Height="30" TextWrapping="Wrap" Width="120" HorizontalContentAlignment="Center" VerticalAlignment="Center" 
+                                 Text="{Binding Period}" />
 
-                    <Label Content="N" Width="130" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                    <TextBox x:Name="NInput" Height="30" TextWrapping="Wrap" Width="120" HorizontalContentAlignment="Right" VerticalAlignment="Center"
+                 <Label Content="N" Width="130" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                 <TextBox x:Name="NInput" Height="30" TextWrapping="Wrap" Width="120" HorizontalContentAlignment="Right" VerticalAlignment="Center"
                                  Text="{Binding N}" />
 
                     
                 </StackPanel>
-            
 
-                    <Button Width="150" Height="60"  Command="{Binding CreateCommand }" CommandParameter="{Binding SelectedParameters}">Create graph</Button>
+
+            <Button Width="150" Height="60"  Command="{Binding CreateCommand }" CommandParameter="{Binding SelectedParameters}">Calculate</Button>
 
         </Grid>
 

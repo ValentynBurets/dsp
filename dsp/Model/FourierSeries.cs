@@ -1,4 +1,5 @@
-﻿using dsp.MathLogic;
+﻿using dsp.additional;
+using dsp.MathLogic;
 using Hangfire.Annotations;
 using System;
 using System.Collections.Generic;
@@ -10,44 +11,88 @@ using System.Threading.Tasks;
 
 namespace dsp.Model
 {
+
     public class FourierSeries : INotifyPropertyChanged
-    {
-
-        private double _accuracy;
-
-        private int _fi0Analytical;
-        private int _n;
-        private double _anAnalytical;
-        
+    {        
         public int Prescision { get; set; }
+
         public Func<double, double> Function { get; set; }
 
+        private double A0;
+        private List<double> Ans;
+        private List<double> Bns;
+
         private Func<Func<double, double>, double, double, int, double> IntegrationMethod { get; set; }
+
+        private int _period = 1;
+        public int Period
+        {
+            get
+            {
+                return _period;
+            }
+            set
+            {
+                _period = value;
+                XMin = -1 * value * Math.PI;
+                XMax = value * Math.PI;
+                OnPropertyChanged(nameof(Period));
+            }
+        }
+
+        private double _Xmin;
+        public double XMin
+        {
+            get
+            {
+                return _Xmin;
+            }
+            set
+            {
+                _Xmin = value;
+                OnPropertyChanged(nameof(XMin));
+            }
+        }
+
+        private double _Xmax;
+        public double XMax
+        {
+            get
+            {
+                return _Xmax;
+            }
+            set
+            {
+                _Xmax = value;
+                OnPropertyChanged(nameof(XMax));
+            }
+        }
+
 
         public FourierSeries() 
         {
             IntegrationMethod = MathIntegration.MethodTrapezoid;
+            Period = 1;
+            file = new Writer();
         }
 
-        //public double Accuracy
-        //{
-        //    get { return _accuracy; }
-        //    set
-        //    {
-        //        _accuracy = value;
-        //        OnPropertyChanged("Accuracy");
-        //    }
-        //}
+        public void CalculateElements()
+        {
+            CalculateA0();
+            Ans = new List<double>();
+            Bns = new List<double>();
 
-        //public int Fi0Analytical
-        //{
-        //    get { return _fi0Analytical; }
-        //    set
-        //    {
-        //        _fi0Analytical = value;
-        //        OnPropertyChanged("Fi0Analytical");
-        //    }
-        //}
+            for(int i = 1; i <= N; i++)
+            {
+                Ans.Add(CalculateAn(i));
+                Bns.Add(CalculateBn(i));
+            }
+        }
+
+        public Writer file;
+        
+
+        private int _n;
 
         public int N
         {
@@ -58,133 +103,49 @@ namespace dsp.Model
                 OnPropertyChanged("N");
             }
         }
-        //public double AnAnalytical
-        //{
-        //    get { return _anAnalytical; }
-        //    set
-        //    {
-        //        _anAnalytical = value;
-        //        OnPropertyChanged("AnAnalytical");
-        //    }
-        //}
 
-        ////Код програми для визначення кількості доданків у сумі:
 
-        //public int FindN()
-        //{
-        //    double firstValueAnalytically, secondValueAnalytically;
-        //    int n = 1;
-        //    do
-        //    {
-        //        firstValueAnalytically = GetGAnalitycally(Math.PI / 4, n);
-        //        n += 2;
-        //        secondValueAnalytically = GetGAnalitycally(Math.PI / 4, n);
-        //    } while (Math.Abs(firstValueAnalytically - secondValueAnalytically) > _accuracy);
-        //    _n = n - 2;
-        //    return _n;
-        //}
+        private double CalculateA0()
+        {
+            var res = 2.0 / (2 * Math.PI) * IntegrationMethod(Function, -Math.PI, Math.PI, Prescision);
+            file.Write($"A0 {res} \n");
+            A0 = res;
+            return res;
+        }
+        private double CalculateAn(int n)
+        {
+            var res = 2.0 / (2 * Math.PI) * IntegrationMethod((x) => Function(x) * Math.Cos(n * x), -Math.PI, Math.PI, Prescision);
+            file.Write($"A{n} {res} \n");
+            return res;
+        }
 
-        ////Код для пошуку абсолютної похибки:
-
-        //public double FindCommonAbsoluteError()
-        //{
-        //    double testValue = Math.PI * 5 / 6;
-        //    double firstValue = GetGAnalitycally(testValue, _n);
-        //    double secondValue = GetGAnalitycally(testValue, _n + 2);
-        //    return Math.Abs(firstValue - secondValue);
-        //}
-
-        ////Yes
-        ////Код для обрахунку значення за допомогою ряду Фур'є:
-        //public double GetGAnalitycally(double t, int n)
-        //{
-        //    double rezult = Fi0Analytical / 2;
-        //    double suma = 0;
-        //    for (int i = 1; i <= n; ++i)
-        //    {
-        //        suma += AnAnalytical * Math.Cos(i * t) + GetBnAnalytically(i) * Math.Sin(i * t);
-        //    }
-        //    return rezult + suma;
-        //}
-
-        //public double GetBnAnalytically(int i)
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-        ////yes
-        ////Код для обрахунку коефіцієнтів ряду Фур'є:
-        //public double ComputeAn(int n)
-        //{
-        //    return (1.0 - Math.Cos(Math.PI * n)) / (Math.PI * n * n);
-        //}
-
-        //public double ComputeBn(int n)
-        //{
-        //    return -1.0 * (Math.Cos(Math.PI * n) / n);
-        //}
-
-        ////Код для обрахунку абсолютної похибки:
-        //public double ABSError(int n)
-        //{
-        //    double suma = 0;
-        //    for (int i = 0; i < n; i++)
-        //    {
-        //        suma += Math.Abs(Function(i) - GetGAnalitycally(i, n));
-        //    }
-        //    return suma / n;
-        //}
-
-        ////Код для обрахунку відносної похибки:
-        //public double RelativeError(int n)
-        //{
-        //    double suma = 0;
-        //    for (int i = 0; i < n; i++)
-        //    {
-        //        suma += (Math.Abs(Function(i) - GetGAnalitycally(i, n))) / Function(i);
-        //    }
-        //    return suma / n;
-        //}
-
-        ////Код для середньої квадратичної похибки:
-        //public double AverageSquareError(int n)
-        //{
-        //    double suma = 0;
-        //    for (int i = 0; i < n; i++)
-        //    {
-        //        suma += (Function(i) - GetGAnalitycally(i, n)) *
-        //            (Function(i) - GetGAnalitycally(i, n));
-        //    }
-        //    return Math.Sqrt(suma) / n;
-        //}
-
-        ////код що обчислюватиме наближення рядом
-        ////Фур’є з точністю до порядку N(брати цей параметр, як аргумент функції).
-
-        private double CalculateA0() => 2.0/ (2 * Math.PI) * IntegrationMethod(Function, -Math.PI, Math.PI, Prescision);
-        private double CalculateAn(int n) => 2.0 / (2 * Math.PI) * IntegrationMethod((x) => Function(x) * Math.Cos(n * x), -Math.PI, Math.PI, Prescision);
-        private double CalculateBn(int n) => 2.0 / (2 * Math.PI) * IntegrationMethod((x) => Function(x) * Math.Sin(n * x), -Math.PI, Math.PI, Prescision);
+        private double CalculateBn(int n)
+        {
+            var res = 2.0 / (2 * Math.PI) * IntegrationMethod((x) => Function(x) * Math.Sin(n * x), -Math.PI, Math.PI, Prescision);
+            file.Write($"B{n} {res} \n");
+            return res;
+        }
 
 
 
-        public double Aproximate(double x)
+        public double Approximate(double x)
         {
             if(Function(x) == Function(-x))
             {
-                return CalculateA0() / 2.0 + Enumerable.Range(1, N)
-                    .Select(i => CalculateAn(i) * Math.Cos(i * x))
+                return A0 / 2.0 + Enumerable.Range(1, N)
+                    .Select(i => Ans[i - 1] * Math.Cos(i * x))
                     .Sum();
             }
-            if(Function(-x) == -Function(x))
+            if (Function(-x) == -Function(x))
             {
-                return CalculateA0() / 2.0 + Enumerable.Range(1, N)
-                    .Select(i => CalculateBn(i) * Math.Sin(i * x))
+                return A0 / 2.0 + Enumerable.Range(1, N)
+                    .Select(i => Bns[i - 1] * Math.Sin(i * x))
                     .Sum();
             }
             else
             {
-                return CalculateA0() / 2.0 + Enumerable.Range(1, N)
-                    .Select(i => CalculateAn(i) * Math.Cos(i * x) + CalculateBn(i) * Math.Sin(i * x))
+                return A0 / 2.0 + Enumerable.Range(1, N)
+                    .Select(i => Ans[i - 1] * Math.Cos(i * x) + Bns.ElementAt(i) * Math.Sin(i * x))
                     .Sum();
             }
         }
