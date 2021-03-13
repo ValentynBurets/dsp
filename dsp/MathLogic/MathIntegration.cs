@@ -91,32 +91,45 @@ namespace dsp.MathLogic
         //	return sum;
         //}
 
-        public static double SimpsonMethod(Func<double, double> MyFunction, double a, double b, int n)
+        //public static double SimpsonMethod(Func<double, double> MyFunction, double a, double b, int n)
+        //{
+        //    double h = (b - a) / n;
+        //    double FourSum = 0, TwoSum = 0, Res;
+        //    double index;
+        //    double i = 0;
+
+        //    while (i <= n)
+        //    {
+        //        FourSum += 4 * MyFunction(a + (2 * i - 1) * h);
+        //        i++;
+        //    }
+
+        //    i = 0;
+        //    while (i <= n - 1)
+        //    {
+        //        TwoSum += 2 * MyFunction(a + (2 * i) * h);
+        //        i++;
+        //    }
+
+        //    index = (double)(2 * n);
+        //    Res = (h / 4) * (MyFunction(a) + MyFunction(a + index * h) + FourSum + TwoSum);
+
+        //    return Res;
+        //}
+
+        public static double SimpsonMethod(Func<double, double> f, double a, double b, int n)
         {
-            double h = (b - a) / n;
-            double FourSum = 0, TwoSum = 0, Res;
-            double index;
-            double i = 0;
-
-            while (i <= n)
+            double sum = 0, k = 0, i = a;
+            double step = ((b - a) / (double)n);
+            while (i <= b)
             {
-                FourSum += 4 * MyFunction(a + (2 * i - 1) * h);
-                i++;
+                k = (step / 6.0) * (f(i) + 4 * f((2 * i + step) / 2.0) + f(i + step));
+                i += step;
+                sum += k;
             }
+            return sum;
 
-            i = 0;
-            while (i <= n - 1)
-            {
-                TwoSum += 2 * MyFunction(a + (2 * i) * h);
-                i++;
-            }
-
-            index = (double)(2 * n);
-            Res = (h / 4) * (MyFunction(a) + MyFunction(a + index * h) + FourSum + TwoSum);
-
-            return Res;
         }
-
 
     }
 }

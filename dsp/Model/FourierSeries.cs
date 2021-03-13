@@ -72,6 +72,8 @@ namespace dsp.Model
         public FourierSeries() 
         {
             IntegrationMethod = MathIntegration.MethodTrapezoid;
+            //IntegrationMethod = MathIntegration.SimpsonMethod;
+            //IntegrationMethod = MathIntegration.MethodMiddleRectangle;
             Period = 1;
             file = new Writer();
         }
@@ -138,7 +140,7 @@ namespace dsp.Model
             }
             if (Function(-x) == -Function(x))
             {
-                return A0 / 2.0 + Enumerable.Range(1, N)
+                return Enumerable.Range(1, N)
                     .Select(i => Bns[i - 1] * Math.Sin(i * x))
                     .Sum();
             }

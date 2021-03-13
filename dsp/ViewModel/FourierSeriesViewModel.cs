@@ -227,7 +227,7 @@ namespace dsp.ViewModel
             approximation.Title = "Fourier Series";
             YAproximation = new List<double>();
 
-            fourierSeries.file.Write($"F(x) = x, -PI < x < PI \n Порядок {fourierSeries.N} \n Approximation\n");
+            fourierSeries.file.Write($"\n\nF(x) = x, -PI < x < PI \n Порядок {fourierSeries.N} \n Approximation\n");
             fourierSeries.CalculateElements();
 
             foreach (var item in XRange.ToList())
@@ -251,9 +251,13 @@ namespace dsp.ViewModel
         {
             
             var abs = YValues.Zip(YAproximation, (Yv, Ya) => Math.Abs(Yv - Ya));
+
+            var absError = abs.Sum() / fourierSeries.N;
+            fourierSeries.file.Write($"середня абсолютна похибка вимірювань {Math.Round(absError, 5)} %");
+
             var relativeError = abs.Zip(YValues, (a, Yv) => a / Yv).Average() * 100;
 
-            fourierSeries.file.Write($"відносна похибка вимірювань {Math.Round(relativeError, 5)} %");
+            fourierSeries.file.Write($"середня відносна похибка вимірювань {Math.Round(relativeError, 5)} %");
         }
 
         #endregion
