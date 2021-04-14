@@ -68,8 +68,7 @@ namespace dsp.Model
             }
         }
 
-
-        public FourierSeries() 
+        public FourierSeries()
         {
             IntegrationMethod = MathIntegration.MethodTrapezoid;
             //IntegrationMethod = MathIntegration.SimpsonMethod;
@@ -93,7 +92,6 @@ namespace dsp.Model
 
         public Writer file;
         
-
         private int _n;
 
         public int N
